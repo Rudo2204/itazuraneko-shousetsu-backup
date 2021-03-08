@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{crate_authors, crate_description, crate_version, App, Arg};
+use clap::{crate_authors, crate_description, crate_version, App, AppSettings, Arg};
 use csv::{ReaderBuilder, WriterBuilder};
 use html_escape::decode_html_entities;
 use indicatif::ParallelProgressIterator;
@@ -23,6 +23,7 @@ struct ShousetsuEntry {
 
 fn main() -> Result<()> {
     let matches = App::new("itazuraneko_backup")
+        .setting(AppSettings::DisableHelpSubcommand)
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
@@ -34,15 +35,33 @@ fn main() -> Result<()> {
                 .value_name("CSV")
                 .takes_value(true),
         )
+        .subcommand(
+            App::new("export_csv")
+                .about("export csv for inspection")
+                .arg(
+                    Arg::with_name("output")
+                        .help("output csv file")
+                        .short("o")
+                        .long("output")
+                        .value_name("OUTPUT")
+                        .default_value("itazuraneko.csv")
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
+
+    if let Some(ref matches) = matches.subcommand_matches("export_csv") {
+        download_shousetsu_index()?;
+        let csv_path = matches.value_of("output").expect("should never fail");
+        parse_and_save_csv("index.html", &csv_path)?;
+        return Ok(());
+    }
 
     if let Some(csv_path) = matches.value_of("csv") {
         download_from_path(csv_path)?;
     } else {
-        println!("User did not include prepared csv file. So I'm gonna make them myself. This will take a bit of time....");
         download_shousetsu_index()?;
         parse_and_save_csv("index.html", "itazuraneko.csv")?;
-        println!("Finished making csv file.");
         download_from_path("itazuraneko.csv")?;
     }
 
