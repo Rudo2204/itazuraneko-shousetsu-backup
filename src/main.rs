@@ -5,7 +5,6 @@ use html_escape::decode_html_entities;
 use indicatif::ParallelProgressIterator;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::Regex;
-use sanitize_filename::sanitize_with_options;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
@@ -141,23 +140,11 @@ fn download_from_path(csv_path: &str) -> Result<()> {
 // TODO: catch panic
 // https://stackoverflow.com/questions/59091329/how-do-i-catch-a-panic-from-rayons-par-iter
 fn download_single_file(entry: &ShousetsuEntry) -> Result<()> {
-    let santinize_option = sanitize_filename::Options {
-        windows: false,
-        truncate: true,
-        replacement: "",
-    };
     let _status = Command::new("monolith")
         .arg("-s") // Be quiet!
         .arg(format!("https://yonde.itazuraneko.org/novelhtml/{}.html", entry.id).as_str())
         .arg("-o")
-        .arg(
-            format!(
-                "download/{}_{}.html",
-                entry.id,
-                sanitize_with_options(&entry.title, santinize_option),
-            )
-            .as_str(),
-        )
+        .arg(format!("download/{}.html", entry.id,).as_str())
         .status()
         .unwrap();
 

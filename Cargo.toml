@@ -13,7 +13,6 @@ html-escape = "0.2.6"
 regex = "1.4.3"
 serde = { version = "1.0", features = ["derive"] }
 csv = "1.1.5"
-sanitize-filename = "0.3.0"
 rayon = "1.5"
 indicatif = { git = "https://github.com/mitsuhiko/indicatif.git", rev = "14582c5", features = ["rayon"]}
 clap = "2.33"
