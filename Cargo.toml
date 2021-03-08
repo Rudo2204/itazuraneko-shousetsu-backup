@@ -1,0 +1,19 @@
+[package]
+name = "itazuraneko_backup"
+version = "0.1.0"
+authors = ["Rudo2204 <rudo2204@gmail.com>"]
+edition = "2018"
+description = "A CLI program to backup itazuraneko shousetu library"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1"
+html-escape = "0.2.6"
+regex = "1.4.3"
+serde = { version = "1.0", features = ["derive"] }
+csv = "1.1.5"
+sanitize-filename = "0.3.0"
+rayon = "1.5"
+indicatif = { git = "https://github.com/mitsuhiko/indicatif.git", rev = "14582c5", features = ["rayon"]}
+clap = "2.33"
