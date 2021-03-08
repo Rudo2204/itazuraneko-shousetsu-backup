@@ -167,7 +167,7 @@ fn download_single_file(entry: &ShousetsuEntry) -> Result<()> {
 fn download_shousetsu_index() -> Result<()> {
     Command::new("monolith")
         .arg("-s") // Be quiet!
-        .arg("https://itazuraneko.neocities.org/library/shousetu.html")
+        .arg("https://yonde.itazuraneko.org/other/kensaku.html")
         .arg("-o")
         .arg("index.html")
         .status()
