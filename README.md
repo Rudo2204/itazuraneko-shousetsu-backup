@@ -3,16 +3,17 @@ License: [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg
 
 ## Quickstart (it just works!:tm:)
 1. Install [monolith](https://github.com/Y2Z/monolith) and add it to your PATH.
-2. Run `itazuraneko_backup download`.
-3. Wait. (The program will download a lot of files)
-4. Done.
+2. Run `itazuraneko_backup download` to start the downloading process.
+3. Wait till the downloading process finishes. And done!
 
-## Recommended workflow (Linux)
-1. Install [monolith](https://github.com/Y2Z/monolith) and add it to your PATH.
-2. Install [GNU parallel](https://www.gnu.org/software/parallel/) and add it to your PATH.
-3. Run `itazuraneko_backup export --job`. This will make a `itazuraneko.csv` file that you can use for inspection or whatever else purposes, and also a `jobs.txt` file that contains all the jobs.
-4. We then can run execute these jobs in parallel using gnu `parallel` by invoking `cat jobs.txt | parallel --eta -j 100 {}`. Now we wait.
-5. Done!
+## Export
+You can use the export subcommand to export data for various purposes.
+
+There are two flags you can use:
+
+The first flag is `--csv` which will export the data out to a friendly csv file. You then can use this exported csv file with `itazuraneko_backup` using the flag `--input` or whatever else you want.
+
+The other one is `--job` which can be used to export all the jobs out if you want to run it on another machine with more cores/better internet connection using [GNU parallel](https://www.gnu.org/software/parallel/). You can invoke `cat jobs.txt | parallel --eta -j <num-jobs> {}` on the remote machine to achieve this.
 
 ## Usage
 ```
