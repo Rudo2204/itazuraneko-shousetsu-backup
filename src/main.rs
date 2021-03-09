@@ -27,42 +27,81 @@ fn main() -> Result<()> {
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
-        .arg(
-            Arg::with_name("input")
-                .help("use prepared csv file")
-                .short("i")
-                .long("input")
-                .value_name("CSV")
-                .takes_value(true),
+        .subcommand(
+            App::new("download").about("download data").arg(
+                Arg::with_name("input")
+                    .help("use prepared csv file")
+                    .short("i")
+                    .long("input")
+                    .value_name("CSV")
+                    .takes_value(true),
+            ),
         )
         .subcommand(
-            App::new("export_csv")
-                .about("export csv for inspection")
+            App::new("export")
+                .about("export data for inspection purpose")
+                .arg(
+                    Arg::with_name("input")
+                        .help("use prepared csv file")
+                        .short("i")
+                        .long("input")
+                        .value_name("CSV")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("csv")
+                        .help("export itazuraneko data to csv file")
+                        .short("s")
+                        .long("csv")
+                        .conflicts_with("job")
+                        .conflicts_with("input"),
+                )
+                .arg(
+                    Arg::with_name("job")
+                        .help("export jobs file for running parallel")
+                        .short("j")
+                        .long("job")
+                        .conflicts_with("csv"),
+                )
                 .arg(
                     Arg::with_name("output")
-                        .help("output csv file")
+                        .help("output file")
                         .short("o")
                         .long("output")
                         .value_name("OUTPUT")
-                        .default_value("itazuraneko.csv")
                         .takes_value(true),
                 ),
         )
         .get_matches();
 
-    if let Some(ref matches) = matches.subcommand_matches("export_csv") {
-        download_shousetsu_index()?;
-        let csv_path = matches.value_of("output").expect("should never fail");
-        parse_and_save_csv("index.html", &csv_path)?;
-        return Ok(());
-    }
-
-    if let Some(csv_path) = matches.value_of("csv") {
-        download_from_path(csv_path)?;
-    } else {
-        download_shousetsu_index()?;
-        parse_and_save_csv("index.html", "itazuraneko.csv")?;
-        download_from_path("itazuraneko.csv")?;
+    if let Some(ref matches) = matches.subcommand_matches("export") {
+        if matches.is_present("csv") {
+            download_shousetsu_index()?;
+            let output_file = matches.value_of("output").unwrap_or("itazuraneko.csv");
+            parse_and_save_csv("index.html", &output_file)?;
+            println!("everything is finished!");
+        } else if matches.is_present("job") {
+            let output_file = matches.value_of("output").unwrap_or("jobs.txt");
+            if let Some(csv_path) = matches.value_of("input") {
+                parse_csv_and_save_jobs(&csv_path, &output_file)?;
+            } else {
+                download_shousetsu_index()?;
+                // TODO: make tempdir here so itazuraneko.csv file gets cleaned up after
+                parse_and_save_csv("index.html", "itazuraneko.csv")?;
+                parse_csv_and_save_jobs("itazuraneko.csv", &output_file)?;
+            }
+            println!("everything is finished!");
+        } else {
+            eprintln!("you need to specific either --csv or --job!");
+        }
+    } else if let Some(ref matches) = matches.subcommand_matches("download") {
+        if let Some(csv_path) = matches.value_of("input") {
+            download_from_path(csv_path)?;
+        } else {
+            download_shousetsu_index()?;
+            parse_and_save_csv("index.html", "itazuraneko.csv")?;
+            download_from_path("itazuraneko.csv")?;
+        }
     }
 
     Ok(())
@@ -178,6 +217,41 @@ fn download_shousetsu_index() -> Result<()> {
         .arg("index.html")
         .status()
         .unwrap();
+
+    Ok(())
+}
+
+fn serialize_csv_to_jobs(csv_path: &str) -> Result<String> {
+    let data = fs::read_to_string(csv_path)?;
+    let mut rdr = ReaderBuilder::new()
+        .delimiter(b';')
+        .has_headers(false)
+        .from_reader(data.as_bytes());
+    let iter = rdr.deserialize();
+
+    let mut ret_string = String::new();
+    for entry in iter {
+        let record: ShousetsuEntry = entry?;
+        ret_string.push_str(
+            format!(
+                "monolith -s https://yonde.itazuraneko.org/novelhtml/{}.html -o download/{}.html\n",
+                record.id, record.id
+            )
+            .as_str(),
+        )
+    }
+    Ok(ret_string)
+}
+
+fn parse_csv_and_save_jobs(input_path: &str, output_path: &str) -> Result<()> {
+    let job_string = serialize_csv_to_jobs(&input_path)?;
+    let mut job_file = fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(output_path)?;
+
+    job_file.write_all(job_string.as_bytes())?;
 
     Ok(())
 }
