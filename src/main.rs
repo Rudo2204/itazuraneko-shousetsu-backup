@@ -28,10 +28,10 @@ fn main() -> Result<()> {
         .author(crate_authors!())
         .about(crate_description!())
         .arg(
-            Arg::with_name("csv")
+            Arg::with_name("input")
                 .help("use prepared csv file")
                 .short("i")
-                .long("csv")
+                .long("input")
                 .value_name("CSV")
                 .takes_value(true),
         )
