@@ -1,4 +1,4 @@
-CI: [![Build Status](https://github.com/Rudo2204/rtend/workflows/CI/badge.svg)](https://github.com/Rudo2204/rtend/actions)\
+CI: [![Build Status](https://github.com/Rudo2204/itazuraneko-shousetsu-backup/workflows/CI/badge.svg)](https://github.com/Rudo2204/itazuraneko-shousetsu-backup/actions)\
 License: [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Quickstart (it just works!:tm:)
