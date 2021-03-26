@@ -16,3 +16,11 @@ csv = "1.1.5"
 rayon = "1.5"
 indicatif = { git = "https://github.com/mitsuhiko/indicatif.git", rev = "14582c5", features = ["rayon"]}
 clap = "2.33"
+scraper = "0.12.0"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "serialize_data"
+harness = false
